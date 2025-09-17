@@ -7,10 +7,6 @@ from loguru import logger
 from whisper_turbo import MLXWhisperTranscriber
 
 
-import torch
-print(torch.backends.mps.is_available())
-
-
 
 # Transcribe audio using whisper model
 def transcribe_audio(filename:str)-> str:
