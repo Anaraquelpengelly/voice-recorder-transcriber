@@ -3,7 +3,7 @@
 This is a homemade voice recorder-transcriber that I made using gradio and whisper.
 
 ## Technical requirements
-You need to download the ffmpeg library. If you have a mac you can do it with homebrew:
+You need to download the ffmpeg library to use your machine's microphone. If you have a mac you can do it with homebrew:
 
 ```Bash
 brew install ffmpeg
