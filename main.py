@@ -1,8 +1,6 @@
 import groq
 import gradio as gr
 import soundfile as sf
-
-
 import xxhash
 import os
 import spaces
@@ -67,8 +65,9 @@ def response(audio:tuple, filename:str):
     sample_rate, arr = audio
 
     logger.info(f"Received audio with sample rate: {sample_rate}, array shape: {arr.shape}")
-
-    file_name = f"voice_recordings/{xxhash.xxh32(bytes(audio[1])).hexdigest()}_{filename}.wav"
+    folder_name = "voice_recordings"
+    os.makedirs(folder_name, exist_ok=True)
+    file_name = f"{folder_name}/{xxhash.xxh32(bytes(audio[1])).hexdigest()}_{filename}.wav"
 
     sf.write(file_name, audio[1], audio[0], format="wav")
 
@@ -79,7 +78,9 @@ def response(audio:tuple, filename:str):
             transcription = "Error in audio transcription."
         else:
             transcription = transcription
-            with open(f"transcripts/{filename}_transcription.txt", "w") as f:
+            transc_folder_name = "transcripts"
+            os.makedirs(transc_folder_name, exist_ok=True)
+            with open(f"{transc_folder_name}/{filename}_transcription.txt", "w") as f:
                 f.write(transcription)
             logger.info(f"Transcription saved to transcripts/{filename}_transcription.txt")
     return transcription

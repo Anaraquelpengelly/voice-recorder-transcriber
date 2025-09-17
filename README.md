@@ -11,7 +11,7 @@ brew install ffmpeg
 
 ## How to run
 
-You can run the app locally by firs downloading uv, then, in the root folder of the repo do:
+You can run the app locally by first downloading uv, then, in the root folder of the repo do:
 
 ```bash
 uv sync
