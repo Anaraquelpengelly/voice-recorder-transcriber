@@ -4,31 +4,28 @@ import xxhash
 import os
 import spaces
 from loguru import logger
-import whisper
+from whisper_turbo import MLXWhisperTranscriber
+
+
+import torch
+print(torch.backends.mps.is_available())
 
 
 
 # Transcribe audio using whisper model
-def transcribe_audio(filename):
-    model = whisper.load_model("large-v3")
+def transcribe_audio(filename:str)-> str:
+    transcriber = MLXWhisperTranscriber(model_name="turbo-v3", api_enabled=False)
     if filename is None:
         return None
     
     try:
-        with open(filename, "rb") as audio_file:
-            
-            response = model.transcribe(filename
-                                        # , device="mps"
-                                        )
-            completion = response['text']
-            logger.info(f"Processed transcription: {completion}")
-            return completion
+        response, segments = transcriber.transcribe_file(filename)
+        logger.info(f"Processed transcription: {response}")
+        return response
     except Exception as e:
         logger.error(f"Error during transcription: {e}")
         return f"Error in transcription: {str(e)}"
     
-
-##process audio 
 
 @spaces.GPU(duration=40, progress=gr.Progress(track_tqdm=True))
 def response(audio:tuple, filename:str):
