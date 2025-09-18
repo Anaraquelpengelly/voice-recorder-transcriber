@@ -1,61 +1,33 @@
-import groq
 import gradio as gr
 import soundfile as sf
 import xxhash
 import os
 import spaces
 from loguru import logger
+from whisper_turbo import MLXWhisperTranscriber
 
 
-#initialise groq client securely
-api_key = os.getenv("GROQ_API_KEY")
-if not api_key:
-    raise ValueError("GROQ_API_KEY environment variable not set")
-client = groq.Client(api_key=api_key)
 
-
-## process whisper response
-def process_whisper_response(completion):
-    """Process Whisper transcription response and return text or null based on no_speech_prob.
+# Transcribe audio using whisper model
+def transcribe_audio(filename:str)-> str:
+    """Transcribe audio file using whisper model.
     Args:
-        completion (dict): Whisper transcription response object.
-        
+        filename (str): Path to audio file.
     Returns:
-        str or None: Transcribed text if no_speech_prob < 0.7, else None.
-    """
-    if completion.segments and len(completion.segments) > 0:
-        no_speech_prob = completion.segments[0].get("no_speech_prob", 0)
-        print(f"no_speech_prob: {no_speech_prob}")
-
-        if no_speech_prob > 0.7:
-            return None
-        logger.info(f"Transcription: {completion.text.strip()}")
-        return completion.text.strip()
+        str: Transcription text or error message."""
     
-    return None
-
-
-# Transcribe audio using Groq whisper model
-def transcribe_audio(client, filename):
+    transcriber = MLXWhisperTranscriber(model_name="turbo-v3", api_enabled=False)
     if filename is None:
         return None
     
     try:
-        with open(filename, "rb") as audio_file:
-            response = client.audio.transcriptions.with_raw_response.create(
-                model="whisper-large-v3-turbo",
-                file=("audio.wav", audio_file),
-                response_format="verbose_json",
-            )
-            completion = process_whisper_response(response.parse())
-            logger.info(f"Processed transcription: {completion}")
-            return completion
+        response, segments = transcriber.transcribe_file(filename)
+        logger.info(f"Processed transcription: {response}")
+        return response
     except Exception as e:
         logger.error(f"Error during transcription: {e}")
         return f"Error in transcription: {str(e)}"
     
-
-##process audio 
 
 @spaces.GPU(duration=40, progress=gr.Progress(track_tqdm=True))
 def response(audio:tuple, filename:str):
@@ -71,7 +43,7 @@ def response(audio:tuple, filename:str):
 
     sf.write(file_name, audio[1], audio[0], format="wav")
 
-    transcription = transcribe_audio(client, file_name)
+    transcription = transcribe_audio(file_name)
     logger.info(f"Transcription result: {transcription}")
     if transcription:
         if transcription.startswith("Error"):
@@ -106,14 +78,21 @@ theme = gr.themes.Soft(
 
 with gr.Blocks() as demo:
     title = gr.Markdown("# Voice Recorder and Transcriber")
-    description = gr.Markdown("Record and transcribe here. Enter a filename and click the microphone to start recording.")
-    filename_input = gr.Textbox(label="Filename", max_lines=1)
-    audio_input = gr.Audio(sources=["microphone"], type="numpy", label="Speak now")
+    description = gr.Markdown("Record audio or upload a voice recording for transcription.")
+    filename_input = gr.Textbox(label=["Filename", "upload"], max_lines=1)
+    input_mode = gr.Radio(["Microphone", "Upload"], label="Select Input Type", value="Microphone")
+    mic_input = gr.Audio(sources=["microphone"], type="numpy", label="Speak now")
+    upload_input = gr.Audio(sources="upload", type="numpy", label="Or upload a voice recording")
     output_txt = gr.Textbox(label="Transcription")
 
-    # Automatically call response when audio input changes
-    audio_input.change(fn=response, inputs=[audio_input, filename_input], outputs=[output_txt])
+    # Toggle visibility depending on input_mode selection
+    def toggle_inputs(mode):
+        return gr.update(visible=mode=="Microphone"), gr.update(visible=mode=="Upload")
+    input_mode.change(toggle_inputs, input_mode, outputs=[mic_input, upload_input])
 
+    # Bind the response function to each input, so it runs when audio changes
+    mic_input.change(response, [mic_input, filename_input], [output_txt])
+    upload_input.change(response, [upload_input, filename_input], [output_txt])
 
 
 if __name__ == "__main__":
