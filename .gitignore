@@ -15,5 +15,7 @@ voice_recordings/
 
 #mac:
 .DS_store
+#pycharm
+.idea/
 #vscode:
 .vscode/

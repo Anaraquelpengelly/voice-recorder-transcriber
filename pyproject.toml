@@ -28,4 +28,5 @@ dependencies = [
     "xxhash>=3.5.0",
     "tensorflow>=2.18.1",
     "whisper-turbo>=0.1.0",
+    "pytest>=8.4.2",
 ]
