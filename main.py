@@ -30,7 +30,13 @@ def transcribe_audio(filename:str)-> str:
     
 
 @spaces.GPU(duration=40, progress=gr.Progress(track_tqdm=True))
-def response(audio:tuple, filename:str):
+def response(audio:tuple, filename:str) -> str:
+    """Handle audio input, save to file, and transcribe.
+    Args:
+        audio (tuple): Tuple of (sample_rate, numpy array) from gr.Audio.
+        filename (str): Desired filename for saving audio.
+    Returns:
+        str: Transcription text or error message."""
     if not audio:
         logger.warning("No audio input received.")
         return "No audio input received."
