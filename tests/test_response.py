@@ -1,4 +1,3 @@
-import pytest
 from utils.transcription_functions import response
 from unittest.mock import patch, MagicMock
 import numpy as np

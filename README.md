@@ -1,6 +1,6 @@
 # Voice-recorder-transcriber
 
-This is a homemade voice recorder-transcriber that I made using gradio and whisper-turbo.
+This is a free, privacy preserving, homemade voice recorder-transcriber that I made using gradio and whisper-turbo. It has no limits to the length of the recording you can transcribe.
 
 ## Technical requirements
 First, clone this repo.

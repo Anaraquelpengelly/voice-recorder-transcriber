@@ -30,3 +30,8 @@ dependencies = [
     "whisper-turbo>=0.1.0",
     "pytest>=8.4.2",
 ]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.13.0",
+]

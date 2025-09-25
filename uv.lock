@@ -2452,6 +2452,11 @@ dependencies = [
     { name = "xxhash" },
 ]
 
+[package.dev-dependencies]
+dev = [
+    { name = "ruff" },
+]
+
 [package.metadata]
 requires-dist = [
     { name = "gradio", specifier = ">=5.44.1" },
@@ -2479,6 +2484,9 @@ requires-dist = [
     { name = "whisper-turbo", specifier = ">=0.1.0" },
     { name = "xxhash", specifier = ">=3.5.0" },
 ]
+
+[package.metadata.requires-dev]
+dev = [{ name = "ruff", specifier = ">=0.13.0" }]
 
 [[package]]
 name = "wcwidth"

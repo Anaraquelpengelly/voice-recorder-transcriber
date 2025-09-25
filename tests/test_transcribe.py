@@ -1,5 +1,4 @@
-import pytest
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 from utils.transcription_functions import transcribe_audio
 
 def test_transcribe_audio_success():
